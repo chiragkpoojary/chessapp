@@ -1,6 +1,7 @@
 ---
 // BaseLayout.astro
 const { title = "Chess" } = Astro.props;
+import "../styles/global.css"
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -9,7 +10,7 @@ const { title = "Chess" } = Astro.props;
 	<link rel="icon" type="image/png" href="/img.png" />
 	<title>chess</title>
 </head>
-<body>
+<body style="background-color: black">
 <slot />
 </body>
 </html>
