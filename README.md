@@ -1,46 +1,33 @@
-# Astro Starter Kit: Basics
+# ♟️ Chess App
 
-```sh
-npm create astro@latest -- --template basics
-```
+A simple and interactive online chess application built with modern web technologies. The app allows two players to play chess in a clean and responsive interface, with real-time board updates.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+---
 
-## 🚀 Project Structure
+## 🚀 Features
 
-Inside of your Astro project, you'll see the following folders and files:
+- 🎯 Drag-and-drop chess piece movement
+- ♟ Valid move highlighting
+- 🔄 Real-time position updates using FEN
+- 🧠 Game logic powered by `chess.js`
+- 📱 Responsive UI with `react-chessboard`
+- 🔁 Undo/Redo logic (optional extension)
+- 🎥 (Planned) Video call integration for remote play
 
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
-```
+---
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+## 🛠️ Tech Stack
 
-## 🧞 Commands
+- **Frontend**: React, TypeScript, TailwindCSS
+- **Game Engine**: [chess.js](https://github.com/jhlywa/chess.js)
+- **UI**: [react-chessboard](https://github.com/Clariity/react-chessboard)
 
-All commands are run from the root of the project, from a terminal:
+---
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+## 📦 Installation
 
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+```bash
+git clone https://github.com/chiragkpoojary/chess-app.git
+cd chess-app
+npm install
+npm run dev
