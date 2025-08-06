@@ -27,7 +27,7 @@ A simple and interactive online chess application built with modern web technolo
 ## 📦 Installation
 
 ```bash
-git clone https://github.com/chiragkpoojary/chess-app.git
+git clone https://github.com/chiragkpoojary/chessapp.git
 cd chess-app
 npm install
 npm run dev
