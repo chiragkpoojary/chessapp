@@ -1,7 +1,45 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import Board from "../components/ChessBoard";
+import Board from "../components/offline";
+import OnlineBoard from "../components/online";
 ---
-<Layout>
-	<Board client:load />
-</Layout>
+
+	<Layout>
+		<div class="relative min-h-screen flex items-center justify-center">
+			<div class="absolute inset-0 bg-gradient-to-tr from-purple-700 via-pink-600 to-red-500 opacity-20 blur-3xl -z-10"></div>
+
+			<main class="bg-gray-800 bg-opacity-80 rounded-3xl p-12 max-w-lg w-full shadow-2xl text-center">
+				<h1 class="text-6xl font-extrabold text-yellow-400 mb-8 drop-shadow-lg">
+					♟ Chess Connect
+				</h1>
+				<p class="text-lg text-gray-300 mb-12 leading-relaxed">
+					Play chess with friends online or enjoy an offline match. Choose your mode and start your game!
+				</p>
+
+				<div class="flex flex-col md:flex-row gap-8 justify-center">
+					<a
+						href="/online"
+						class="flex-1 px-10 py-6 rounded-3xl bg-gradient-to-r from-green-500 to-green-600 hover:from-green-400 hover:to-green-500
+          text-white text-3xl font-bold shadow-xl transform transition-transform duration-300 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-400"
+					>
+						🌐 Play Online
+					</a>
+
+					<a
+						href="/offline"
+						class="flex-1 px-10 py-6 rounded-3xl bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500
+          text-white text-3xl font-bold shadow-xl transform transition-transform duration-300 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-400"
+					>
+						🎯 Play Offline
+					</a>
+				</div>
+
+				<p class="mt-16 text-sm text-gray-400">
+					Made with ❤️ by Chirag
+				</p>
+			</main>
+		</div>
+	</Layout>
+
+
+
