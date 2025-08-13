@@ -1,7 +1,7 @@
 import {useEffect, useRef, useState} from "react";
 import Board from "./offline.tsx";
 
-export default function OnlineGame() {
+export default function OnlineGame({ws}) {
     const [gameId, setGameId] = useState(null);
     const [status, setStatus] = useState('Connecting...');
     const [externalMove, setExternalMove] = useState(null);
@@ -9,7 +9,7 @@ export default function OnlineGame() {
 const [playercolor, setPlayercolor] = useState("");
 
 
-    const ws = new WebSocket(import.meta.env.PUBLIC_VITE_WS_URL);
+   // const ws = new WebSocket(import.meta.env.PUBLIC_VITE_WS_URL);
 
     const wsRef = useRef(ws);
 
