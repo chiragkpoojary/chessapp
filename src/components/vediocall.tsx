@@ -72,6 +72,9 @@ export default function VideoCall({ws}) {
             <button onClick={startVideo} className="px-4 py-2 bg-blue-500 rounded mt-7">
                 Start Camera
             </button>
+            <button onClick={callOpponent} className="px-4 py-2 bg-blue-500 rounded mt-7">
+                Start Camera
+            </button>
         </div>
     );
 }
