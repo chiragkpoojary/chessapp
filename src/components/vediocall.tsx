@@ -23,6 +23,8 @@ export default function VideoCall({ ws }) {
                 case "webrtc_ice":
                     await pcRef.current.addIceCandidate(new RTCIceCandidate(msg.payload));
                     break;
+                    default:
+                        break;
             }
         });
 
