@@ -1,74 +1,84 @@
-import {useEffect, useRef, useState} from "react";
+import { useEffect, useRef, useState } from "react";
 import Board from "./offline.tsx";
+import { useGameStore } from "../states/GameId.ts";
 
-export default function OnlineGame({ws}) {
-    const [gameId, setGameId] = useState(null);
-    const [status, setStatus] = useState('Connecting...');
+export default function OnlineGame({ ws }) {
+    const [status, setStatus] = useState("Connecting...");
     const [externalMove, setExternalMove] = useState(null);
     const [players, setPlayers] = useState({ white: false, black: false });
-const [playercolor, setPlayercolor] = useState("");
+    const [playerColor, setPlayerColor] = useState("");
+    const [joinGameId, setJoinGameId] = useState(""); // For typing before joining
 
-
-   // const ws = new WebSocket(import.meta.env.PUBLIC_VITE_WS_URL);
-
+    const { gameId, setGameId } = useGameStore();
     const wsRef = useRef(ws);
 
-  const [gameIdInput, setGameIdInput] = useState("");
-
     useEffect(() => {
-        ws.onopen = () => setStatus('Connected');
-        ws.onmessage = (event) => {
+        if (!wsRef.current) return;
+
+        wsRef.current.onopen = () => setStatus("Connected");
+
+        wsRef.current.onmessage = (event) => {
             const msg = JSON.parse(event.data);
 
             switch (msg.type) {
-                case 'game_created':
-                case 'game_joined':
+                case "game_created":
+                case "game_joined":
                     setGameId(msg.payload.gameId);
-                    setPlayercolor(msg.payload.color);
-                    setPlayers((prev) => ({ ...prev, white: true }));
+                    setPlayerColor(msg.payload.color);
                     break;
-                case 'game_start':
-                    setGameId(msg.payload.gameId);
+
+                case "game_start":
                     setPlayers({ white: true, black: true });
-                    setStatus('Game started!');
+                    setStatus("Game started!");
                     break;
-                case 'opponent_move':
+
+                case "opponent_move":
                     setExternalMove(msg.payload);
                     break;
-                case 'player_left':
-                    setStatus(`Opponent (${msg.payload.color === 'w' ? 'White' : 'Black'}) left the game`);
+
+                case "player_left":
+                    setStatus(
+                        `Opponent (${msg.payload.color === "w" ? "White" : "Black"}) left`
+                    );
                     setPlayers((prev) => ({
                         ...prev,
-                        [msg.payload.color === 'w' ? 'white' : 'black']: false
+                        [msg.payload.color === "w" ? "white" : "black"]: false,
                     }));
-
-                    break;
-                case 'player_update':
-                    setPlayers(msg.payload); // { white: true/false, black: true/false }
                     break;
 
-                case 'error':
+                case "player_update":
+                    setPlayers(msg.payload);
+                    break;
+
+                case "error":
                     alert(msg.payload);
                     break;
             }
         };
 
-
-        return () => ws.close();
-    }, []);
+        return () => wsRef.current.close();
+    }, [setGameId]);
 
     function handleLocalMove(move) {
-console.log('online', move);
-            wsRef.current.send(JSON.stringify({
-                type: 'move',
-                payload: {
-                    gameId,
-                    move
-                }
-            }));
+        wsRef.current.send(
+            JSON.stringify({
+                type: "move",
+                payload: { gameId, move },
+            })
+        );
+    }
 
+    function createGame() {
+        wsRef.current.send(JSON.stringify({ type: "create_game" }));
+    }
 
-
+    function joinGame() {
+        wsRef.current.send(
+            JSON.stringify({
+                type: "join_game",
+                payload: { gameId: joinGameId },
+            })
+        );
     }
 
     return (
@@ -77,46 +87,35 @@ console.log('online', move);
             <div className="w-full max-w-2xl mb-6 text-center">
                 <h1 className="text-3xl font-bold text-yellow-400">♟ Online Chess</h1>
                 <p className="text-lg">
-                    Status: <span className="text-green-400 font-semibold">{status}</span>
+                    Status:{" "}
+                    <span className="text-green-400 font-semibold">{status}</span>
                 </p>
             </div>
 
-            {/* Players Status */}
+            {/* Player Status */}
             {gameId && (
                 <div className="w-full max-w-2xl mb-6 p-4 bg-gray-800 rounded-lg shadow-md flex justify-between items-center">
                     <div className="flex flex-col items-center">
                         <div className="w-12 h-12 rounded-full bg-white border border-gray-500"></div>
-                        <span className="mt-2 font-bold text-white">Player 1</span>
+                        <span className="mt-2 font-bold">Player 1</span>
                         <span className="text-sm text-gray-400">White</span>
-                        {players.white ? (
-                            <span className="text-green-400 text-sm">✅ Joined</span>
-                        ) : (
-                            <span className="text-red-400 text-sm">⏳ Waiting…</span>
-                        )}
+                        {players.white ? "✅ Joined" : "⏳ Waiting…"}
                     </div>
-
                     <div className="flex flex-col items-center">
                         <div className="w-12 h-12 rounded-full bg-black border border-gray-500"></div>
-                        <span className="mt-2 font-bold text-white">Player 2</span>
+                        <span className="mt-2 font-bold">Player 2</span>
                         <span className="text-sm text-gray-400">Black</span>
-                        {players.black ? (
-                            <span className="text-green-400 text-sm">✅ Joined</span>
-                        ) : (
-                            <span className="text-red-400 text-sm">⏳ Waiting…</span>
-                        )}
+                        {players.black ? "✅ Joined" : "⏳ Waiting…"}
                     </div>
                 </div>
             )}
 
-            {/* Lobby Controls */}
+            {/* Controls */}
             <div className="w-full max-w-2xl p-6 bg-gray-800 rounded-lg shadow-lg flex flex-col items-center gap-6">
                 {!gameId && (
                     <button
-                        onClick={() =>
-                            wsRef.current.send(JSON.stringify({ type: "create_game" }))
-                        }
-                        className="w-full px-8 py-4 bg-green-500 hover:bg-green-600 rounded-lg text-xl font-bold shadow-md transition"
-
+                        onClick={createGame}
+                        className="w-full px-8 py-4 bg-green-500 hover:bg-green-600 rounded-lg text-xl font-bold"
                     >
                         Create Game
                     </button>
@@ -138,20 +137,13 @@ console.log('online', move);
                     <input
                         type="text"
                         placeholder="Enter Game ID"
-                        onChange={(e) => setGameIdInput(e.target.value)}
-                        value={gameIdInput}
-                        className="flex-1 px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        onChange={(e) => setJoinGameId(e.target.value)}
+                        value={joinGameId}
+                        className="flex-1 px-4 py-2 rounded-lg bg-gray-700 border border-gray-600"
                     />
                     <button
-                        onClick={() =>
-                            wsRef.current.send(
-                                JSON.stringify({
-                                    type: "join_game",
-                                    payload: { gameIdInput, color: "b" },
-                                })
-                            )
-                        }
-                        className="px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg font-semibold shadow-md transition"
+                        onClick={joinGame}
+                        className="px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg"
                     >
                         Join
                     </button>
@@ -164,12 +156,11 @@ console.log('online', move);
                     <Board
                         onMove={handleLocalMove}
                         externalMove={externalMove}
-                        playerColor={playercolor}
-                        boardOrientation={playercolor === "b" ? "black" : "white"}
+                        playerColor={playerColor}
+                        boardOrientation={playerColor === "b" ? "black" : "white"}
                     />
                 </div>
             )}
         </div>
-
     );
 }

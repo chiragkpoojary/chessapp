@@ -1,14 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 
-export default function VideoCall({ ws }) {
+export default function VideoCall({ ws, gameId }) {
     const [localStream, setLocalStream] = useState(null);
     const [remoteStream, setRemoteStream] = useState(null);
     const pcRef = useRef(new RTCPeerConnection());
     const localVideoRef = useRef(null);
     const remoteVideoRef = useRef(null);
-
+    console.log(gameId)
     useEffect(() => {
+
         if (!ws) return;
+        if (!gameId) return; // don’t send until gameId is set
+
+
 
         ws.addEventListener("message", async (event) => {
             const msg = JSON.parse(event.data);
@@ -18,13 +22,13 @@ export default function VideoCall({ ws }) {
                     await handleOffer(msg.payload);
                     break;
                 case "webrtc_answer":
-                    await pcRef.current.setRemoteDescription(new RTCSessionDescription(msg.payload));
+                    await pcRef.current.setRemoteDescription(new RTCSessionDescription(msg.payload.sdp));
                     break;
                 case "webrtc_ice":
-                    await pcRef.current.addIceCandidate(new RTCIceCandidate(msg.payload));
+                    await pcRef.current.addIceCandidate(new RTCIceCandidate(msg.payload.candidate));
                     break;
-                    default:
-                        break;
+                default:
+                    break;
             }
         });
 
@@ -39,15 +43,18 @@ export default function VideoCall({ ws }) {
         // Handle ICE candidates
         pcRef.current.onicecandidate = event => {
             if (event.candidate) {
-                ws.send(JSON.stringify({ type: "webrtc-ice", payload: event.candidate }));
+                ws.send(JSON.stringify({
+                    type: "webrtc_ice",
+                    payload: { gameId, candidate: event.candidate }
+                }));
             }
         };
 
-    }, [ws]);
+    }, [ws, gameId]);
 
     async function startVideo() {
         try {
-            console.log("🎥 Starting camera...");
+            if (!gameId) return;
             const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
             setLocalStream(stream);
             if (localVideoRef.current) {
@@ -55,12 +62,14 @@ export default function VideoCall({ ws }) {
             }
             stream.getTracks().forEach(track => pcRef.current.addTrack(track, stream));
 
-            // If no remote description yet, send an offer
+            // Send offer only if we are the first to start
             if (!pcRef.current.remoteDescription) {
-                console.log("📡 Sending offer...");
                 const offer = await pcRef.current.createOffer();
                 await pcRef.current.setLocalDescription(offer);
-                ws.send(JSON.stringify({ type: "webrtc-offer", payload: offer }));
+                ws.send(JSON.stringify({
+                    type: "webrtc_offer",
+                    payload: { gameId, sdp: offer }
+                }));
             }
 
         } catch (err) {
@@ -68,12 +77,15 @@ export default function VideoCall({ ws }) {
         }
     }
 
-    async function handleOffer(offer) {
-        console.log("📩 Received offer, sending answer...");
-        await pcRef.current.setRemoteDescription(new RTCSessionDescription(offer));
+    async function handleOffer(offerData) {
+        if (!gameId) return;
+        await pcRef.current.setRemoteDescription(new RTCSessionDescription(offerData.sdp));
         const answer = await pcRef.current.createAnswer();
         await pcRef.current.setLocalDescription(answer);
-        ws.send(JSON.stringify({ type: "webrtc-answer", payload: answer }));
+        ws.send(JSON.stringify({
+            type: "webrtc_answer",
+            payload: { gameId, sdp: answer }
+        }));
     }
 
     return (

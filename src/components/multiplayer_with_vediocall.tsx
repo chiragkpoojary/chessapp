@@ -2,10 +2,12 @@
 import { useEffect, useState } from "react";
 import OnlineGame from "./online.tsx";
 import VideoCall from "../components/vediocall.tsx";
+import {useGameStore} from "../states/GameId.ts";
 
 export default function MultiplayerWithVideoCall() {
     const [ws, setWs] = useState(null);
-
+    const { gameId } = useGameStore();
+    console.log(gameId)
     useEffect(() => {
         const socket = new WebSocket(import.meta.env.PUBLIC_VITE_WS_URL);
 
@@ -29,7 +31,7 @@ export default function MultiplayerWithVideoCall() {
     return (
         <div>
             <OnlineGame ws={ws} />
-            <VideoCall ws={ws} /> {/* Same socket for both */}
+            <VideoCall ws={ws} gameId={gameId}/> {/* Same socket for both */}
         </div>
     );
 }
