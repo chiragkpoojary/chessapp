@@ -62,14 +62,14 @@ export default function VideoCall({ ws, gameId }) {
             stream.getTracks().forEach(track => pcRef.current.addTrack(track, stream));
 
            
-            if (!pcRef.current.localDescription) {
-                const offer = await pcRef.current.createOffer();
-                await pcRef.current.setLocalDescription(offer);
-                ws.send(JSON.stringify({
-                    type: "webrtc_offer",
-                    payload: { gameId, sdp: offer }
-                }));
-            }
+        if (pcRef.current.signalingState === "stable") {
+    const offer = await pcRef.current.createOffer();
+    await pcRef.current.setLocalDescription(offer);
+    ws.send(JSON.stringify({
+        type: "webrtc_offer",
+        payload: { gameId, sdp: offer }
+    }));
+}
 
         } catch (err) {
             console.error("❌ Error accessing camera:", err);
