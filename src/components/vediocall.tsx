@@ -10,8 +10,7 @@ export default function VideoCall({ ws, gameId }) {
     useEffect(() => {
 
         if (!ws) return;
-        if (!gameId) return; // don’t send until gameId is set
-
+        if (!gameId) return;
 
 
         ws.addEventListener("message", async (event) => {
@@ -62,8 +61,8 @@ export default function VideoCall({ ws, gameId }) {
             }
             stream.getTracks().forEach(track => pcRef.current.addTrack(track, stream));
 
-            // Send offer only if we are the first to start
-            if (!pcRef.current.remoteDescription) {
+           
+            if (!pcRef.current.localDescription) {
                 const offer = await pcRef.current.createOffer();
                 await pcRef.current.setLocalDescription(offer);
                 ws.send(JSON.stringify({
